@@ -1,0 +1,165 @@
+# encoding: utf-8
+# +---------------------------------------------------------------------------+
+# | Copyright (C) 2017 Georges Bossert                                        |
+# | This program is free software: you can redistribute it and/or modify      |
+# | it under the terms of the GNU General Public License as published by      |
+# | the Free Software Foundation, either version 3 of the License, or         |
+# | (at your option) any later version.                                       |
+# |                                                                           |
+# | This program is distributed in the hope that it will be useful,           |
+# | but WITHOUT ANY WARRANTY; without even the implied warranty of            |
+# | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the              |
+# | GNU General Public License for more details.                              |
+# |                                                                           |
+# | You should have received a copy of the GNU General Public License         |
+# | along with this program. If not, see <http://www.gnu.org/licenses/>.      |
+# +---------------------------------------------------------------------------+
+
+
+import logging
+
+from flask import request
+from flask_restplus import Namespace, Resource, fields
+from app.extensions.api.parameters import pagination_parameters
+
+from app.extensions import projects
+
+from . import parameters
+
+log = logging.getLogger(__name__)  # pylint: disable=invalid-name
+api = Namespace('symbols',
+                description="Handle symbols of your protocol",
+                path=projects.path+'/symbols')  # pylint: disable=invalid-name
+
+
+@api.route('/')
+class Symbols(Resource):
+
+    @api.expect(pagination_parameters, validate = True)
+    def get(self, pid):
+        """List all symbols.
+
+        Returns a list of symbols starting from ``offset`` limited by ``limit`` parameter.
+        """
+
+        args = pagination_parameters.parse_args(request)
+        limit = args['limit']
+        offset = args['offset']
+        
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.get_symbols(limit = limit, offset = offset)
+
+    @api.expect(parameters.new_symbol, validate = True)
+    def post(self, pid):
+        """Create a new symbol."""
+
+        args = parameters.new_symbol.parse_args(request)
+        
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.add_symbol(name = args['name'])
+        
+
+@api.route('/<string:sid>/')
+class SymbolByID(Resource):
+
+    def get(self, pid, sid):
+        """Fetch a symbol by its id"""
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.get_symbol(sid)
+
+    @api.expect(parameters.new_symbol, validate = True)
+    def patch(self, pid, sid):
+        """Patch symbol details by its id"""
+
+        args = parameters.new_symbol.parse_args(request)
+        
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.update_symbol(sid, name = args['name'])
+
+    def delete(self, pid, sid):
+        """Delete a symbol by its id"""
+
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.delete_symbol(sid)
+
+@api.route('/<string:sid>/specialize')
+class SymbolSpecialize(Resource):
+
+    def get(self, pid, sid):
+        """Specialize a symbol by its id"""
+
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.specialize_symbol(sid)
+
+@api.route('/<string:sid>/cells')
+class SymbolCells(Resource):
+
+    def get(self, pid, sid):
+        """Fetches symbol's cells by its id"""
+
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.get_symbol_cells(sid)
+
+@api.route('/<string:sid>/messages')
+class SymbolMessages(Resource):
+
+    @api.expect(pagination_parameters, validate = True)    
+    def get(self, pid, sid):
+        """Fetch symbol's messages by its id"""
+
+        args = pagination_parameters.parse_args(request)
+        limit = args['limit']
+        offset = args['offset']
+        
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.get_symbol_messages(sid, limit = limit, offset = offset)
+
+    
+@api.route('/<string:sid>/messages/<string:mid>')
+class SymbolMessage(Resource):
+
+    def delete(self, pid, sid, mid):
+        """Remove a message from a symbol"""
+
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.remove_message_from_symbol(sid, mid)
+    
+
+    def put(self, pid, sid, mid):
+        """Append a message to a symbol"""
+
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.add_message_in_symbol(sid, mid)
+    
+
+@api.route('/<string:sid>/fields')
+class SymbolFields(Resource):
+
+    @api.expect(pagination_parameters, validate = True)
+    def get(self, pid, sid):
+        """Fetch symbol's fields by its id"""
+
+        args = pagination_parameters.parse_args(request)
+        limit = args['limit']
+        offset = args['offset']        
+
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.get_symbol_fields(sid, limit = limit, offset = offset)
+    
+@api.route('/<string:sid>/field/<string:fid>')
+class SymbolField(Resource):
+
+    def delete(self, pid, sid, fid):
+        """Remove a field from a symbol"""
+
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.remove_field_from_symbol(sid, fid)
+
+    def put(self, pid, sid, fid):
+        """Append a field to a symbol"""
+
+        project_handler = projects.projects_manager.get_project_handler(pid)
+        return project_handler.add_field_in_symbol(sid, fid)
+
+
+    

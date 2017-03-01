@@ -25,3 +25,10 @@ new_symbol.add_argument('name',
                         required = True,
                         location = 'json',
                         help = "Name of the symbol")
+
+add_field = reqparse.RequestParser()
+add_field.add_argument('fid_before_new',
+                        type = str,
+                        required = False,
+                        location = 'json',
+                        help = "ID of the field the new field should be inserted after")

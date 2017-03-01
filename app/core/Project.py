@@ -119,14 +119,20 @@ class Project(object):
 
         symbol.fields = new_fields
 
-    def add_field_in_symbol(self, sid, fid):
+    def add_field_in_symbol(self, sid, fid, fid_before_new = None):
         symbol = self.get_symbol(sid)
         field = self.get_field(fid)
         if field in symbol.fields:
             raise Exception("Field is already attached to the symbol")
         
-        symbol.fields.append(field)
+        position_to_insert = 0
+        if fid_before_new is not None:
+            previous_field = self.get_field(fid_before_new)
+            if previous_field not in symbol.fields:
+                raise Exception("Previous field cannot be found")
+            position_to_insert = symbol.fields.index(previous_field) + 1
 
+        symbol.fields.insert(position_to_insert, field)
         
     #
     # Messages

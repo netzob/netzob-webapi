@@ -183,7 +183,7 @@ class ProjectHandler(object):
 
         return self.__project.remove_field_from_symbol(sid = sid, fid = fid)
 
-    def add_field_in_symbol(self, sid, fid):
+    def add_field_in_symbol(self, sid, fid, fid_before_new = None):
         if sid is None:
             raise ValueError("A SID must be specified")
 
@@ -198,7 +198,7 @@ class ProjectHandler(object):
         if len(fid) == 0:
             raise ValueError("A FID must be specified")
 
-        return self.__project.add_field_in_symbol(sid = sid, fid = fid)
+        return self.__project.add_field_in_symbol(sid = sid, fid = fid, fid_before_new = fid_before_new)
     
     #
     # Messages

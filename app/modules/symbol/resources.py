@@ -155,11 +155,18 @@ class SymbolField(Resource):
         project_handler = projects.projects_manager.get_project_handler(pid)
         return project_handler.remove_field_from_symbol(sid, fid)
 
+    @api.expect(parameters.add_field, validate = True)
     def put(self, pid, sid, fid):
         """Append a field to a symbol"""
 
+        args = parameters.add_field.parse_args(request)
+        
+        fid_before_new = None
+        if "fid_before_new" in args.keys():
+            fid_before_new = args['fid_before_new']
+        
         project_handler = projects.projects_manager.get_project_handler(pid)
-        return project_handler.add_field_in_symbol(sid, fid)
+        return project_handler.add_field_in_symbol(sid, fid, fid_before_new = fid_before_new)
 
 
     

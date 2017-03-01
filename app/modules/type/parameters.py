@@ -46,7 +46,7 @@ new_raw.add_argument('nb_byte_min',
                         required= False,
                         location = 'form',
                         help = "Number of byte min")
-new_raw.add_argument('nb_raw_max',
+new_raw.add_argument('nb_byte_max',
                         type = int,
                         required= False,
                         location = 'form',

@@ -22,10 +22,10 @@ new_domain_data = reqparse.RequestParser()
 new_domain_data.add_argument('name',
                         type = str,
                         required = True,
-                        location = 'form',
+                        location = 'json',
                         help = "Name of the field")
 new_domain_data.add_argument('tid',
                         type = str,
                         required = True,
-                        location = 'form',
+                        location = 'json',
                         help = "Data Type ID")
